@@ -28,9 +28,9 @@ openai.api_key = OPENAI_API_KEY
 USUARIOS_AUTORIZADOS = [7527703575, 222222222]  # Reemplaza con tus IDs de Telegram
 
 # === Variables de estado ===
-user_data = {}  # user_id: lista de {'proyecto': ..., 'resumen': ..., 'gasto': ...}
-user_image_paths = {}  # user_id: image_path temporal
-user_temp_project = {}  # user_id: proyecto temporal esperando tipo de gasto
+user_data = {}
+user_image_paths = {}
+user_temp_project = {}
 user_waiting_gasto = set()
 
 # === Proyectos disponibles ===
@@ -150,7 +150,7 @@ async def manejar_seleccion_proyecto(update: Update, context: ContextTypes.DEFAU
 async def manejar_tipo_gasto(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
     if user_id not in user_waiting_gasto:
-        return  # ignorar si no está esperando tipo de gasto
+        return
 
     gasto = update.message.text
     proyecto = user_temp_project.get(user_id)
@@ -190,12 +190,17 @@ async def comando_enviar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text("Error al enviar correo: " + str(e))
 
-# === Iniciar bot ===
+# === Iniciar bot (versión 20.7) ===
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    app.add_handler(MessageHandler(filters.PHOTO, manejar_imagen))
-    app.add_handler(CallbackQueryHandler(manejar_seleccion_proyecto))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, manejar_tipo_gasto))
-    app.add_handler(CommandHandler("enviar", comando_enviar))
-    app.run_polling()
+    import asyncio
+
+    async def main():
+        logging.basicConfig(level=logging.INFO)
+        application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+        application.add_handler(MessageHandler(filters.PHOTO, manejar_imagen))
+        application.add_handler(CallbackQueryHandler(manejar_seleccion_proyecto))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, manejar_tipo_gasto))
+        application.add_handler(CommandHandler("enviar", comando_enviar))
+        await application.run_polling()
+
+    asyncio.run(main())
