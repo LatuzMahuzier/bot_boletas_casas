@@ -1,0 +1,14 @@
+[project]
+name = "bot_boletas"
+version = "0.1.0"
+description = "Bot de Telegram para leer boletas"
+dependencies = [
+    "python-telegram-bot==20.7",
+    "openai==0.28",
+    "gspread",
+    "oauth2client",
+    "python-dotenv"
+]
+
+[tool.poetry.dependencies]
+python = "~3.10"
