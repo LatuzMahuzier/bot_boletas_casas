@@ -193,6 +193,9 @@ async def comando_enviar(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # === Iniciar bot (versión 20.7) ===
 if __name__ == '__main__':
     import asyncio
+    import nest_asyncio
+
+    nest_asyncio.apply()
 
     async def main():
         logging.basicConfig(level=logging.INFO)
@@ -203,4 +206,5 @@ if __name__ == '__main__':
         application.add_handler(CommandHandler("enviar", comando_enviar))
         await application.run_polling()
 
-    asyncio.run(main())
+    asyncio.get_event_loop().run_until_complete(main())
+
